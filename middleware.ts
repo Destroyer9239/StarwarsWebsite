@@ -1,14 +1,9 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+// Auth is a passthrough until Clerk keys are added to .env.local
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-const isProtectedRoute = createRouteMatcher([
-  "/contribute(.*)",
-  "/profile(.*)",
-]);
+export function middleware(_request: NextRequest) {
+  return NextResponse.next();
+}
 
-export default clerkMiddleware((auth, req) => {
-  if (isProtectedRoute(req)) auth().protect();
-});
-
-export const config = {
-  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
-};
+export const config = { matcher: [] };
