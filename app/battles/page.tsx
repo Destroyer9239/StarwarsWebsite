@@ -25,7 +25,7 @@ export default function BattlesPage() {
     return true;
   });
 
-  const usedEras = [...new Set(BATTLES.map((b) => b.era))];
+  const usedEras = Array.from(new Set(BATTLES.map((b) => b.era)));
 
   return (
     <div className="min-h-screen bg-space pt-20">
