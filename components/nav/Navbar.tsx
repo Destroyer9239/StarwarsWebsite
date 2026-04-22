@@ -5,12 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
-import {
   BookOpen,
   Swords,
   Gamepad2,
@@ -174,23 +168,12 @@ export function Navbar() {
                 </kbd>
               </button>
 
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="hidden md:block px-4 py-1.5 text-sm font-medium rounded-lg border border-gold/40 text-gold hover:bg-gold/10 hover:border-gold transition-all duration-200">
-                    Sign In
-                  </button>
-                </SignInButton>
-              </SignedOut>
-
-              <SignedIn>
-                <UserButton
-                  appearance={{
-                    elements: {
-                      avatarBox: "w-8 h-8",
-                    },
-                  }}
-                />
-              </SignedIn>
+              <Link
+                href="/sign-in"
+                className="hidden md:block px-4 py-1.5 text-sm font-medium rounded-lg border border-gold/40 text-gold hover:bg-gold/10 hover:border-gold transition-all duration-200"
+              >
+                Sign In
+              </Link>
 
               {/* Mobile toggle */}
               <button
@@ -246,19 +229,13 @@ export function Navbar() {
               ))}
 
               <div className="pt-6 border-t border-white/10">
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="w-full py-3 rounded-xl border border-gold/40 text-gold font-medium hover:bg-gold/10 transition-all duration-200">
-                      Sign In
-                    </button>
-                  </SignInButton>
-                </SignedOut>
-                <SignedIn>
-                  <div className="flex items-center gap-3 px-4">
-                    <UserButton />
-                    <span className="text-slate-300 text-sm">Your Account</span>
-                  </div>
-                </SignedIn>
+                <Link
+                  href="/sign-in"
+                  className="block w-full py-3 rounded-xl border border-gold/40 text-gold font-medium hover:bg-gold/10 transition-all duration-200 text-center"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Sign In
+                </Link>
               </div>
             </div>
           </motion.div>
