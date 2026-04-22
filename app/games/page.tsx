@@ -24,7 +24,7 @@ const GENRE_COLORS: Record<string, string> = {
 export default function GamesPage() {
   const [filter, setFilter] = useState("all");
 
-  const genres = [...new Set(GAMES.flatMap((g) => g.genre))];
+  const genres = Array.from(new Set(GAMES.flatMap((g) => g.genre)));
   const filtered =
     filter === "all"
       ? GAMES
@@ -93,7 +93,7 @@ export default function GamesPage() {
         {filter === "all" && (
           <div className="mb-10">
             <h2 className="font-display text-sm font-bold text-gold uppercase tracking-widest mb-4">
-              Editor's Picks
+              Editor&apos;s Picks
             </h2>
             <div className="grid md:grid-cols-2 gap-5">
               {GAMES.filter((g) => g.featured).slice(0, 2).map((game, i) => (
@@ -120,7 +120,7 @@ export default function GamesPage() {
                       <div>
                         <span className="flex items-center gap-1 text-xs bg-gold/20 text-gold border border-gold/30 rounded px-2 py-0.5 mb-2 w-fit">
                           <Star size={10} fill="currentColor" />
-                          Editor's Pick
+                          Editor&apos;s Pick
                         </span>
                         <h3 className="font-display text-xl font-black text-white uppercase tracking-wide">
                           {game.title}
