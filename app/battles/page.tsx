@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Filter, ArrowRight } from "lucide-react";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { StarField } from "@/components/ui/StarField";
 import { BATTLES, ERAS } from "@/lib/data";

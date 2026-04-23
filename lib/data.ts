@@ -670,3 +670,629 @@ export const LORE_CATEGORIES = [
     color: "#EF4444",
   },
 ];
+
+// ===== CHARACTERS =====
+export interface Character {
+  id: string;
+  name: string;
+  slug: string;
+  side: "light" | "dark" | "neutral" | "both";
+  forceSensitive: boolean;
+  species: string;
+  homeworld: string;
+  affiliation: string[];
+  eras: string[];
+  role: string;
+  description: string;
+  color: string;
+  lightsaberColor?: "blue" | "green" | "red" | "purple" | "white" | "yellow" | "none";
+  initials: string;
+}
+
+export const CHARACTERS: Character[] = [
+  {
+    id: "luke-skywalker",
+    name: "Luke Skywalker",
+    slug: "luke-skywalker",
+    side: "light",
+    forceSensitive: true,
+    species: "Human",
+    homeworld: "Tatooine",
+    affiliation: ["Rebel Alliance", "New Jedi Order", "Rogue Squadron"],
+    eras: ["age-of-empire", "new-republic"],
+    role: "Jedi Knight · Rebel Hero",
+    description:
+      "Farm boy turned Jedi Knight who destroyed the Death Star, faced his own father, and ultimately redeemed Darth Vader — bringing balance to the Force.",
+    color: "#1a3a6b",
+    lightsaberColor: "blue",
+    initials: "LS",
+  },
+  {
+    id: "darth-vader",
+    name: "Darth Vader",
+    slug: "darth-vader",
+    side: "both",
+    forceSensitive: true,
+    species: "Human (Cyborg)",
+    homeworld: "Tatooine",
+    affiliation: ["Galactic Empire", "Sith Order", "formerly Jedi Order"],
+    eras: ["fall-of-jedi", "age-of-empire"],
+    role: "Sith Lord · Dark Lord",
+    description:
+      "Once Anakin Skywalker, the Chosen One, seduced by Palpatine's promises. Servant of the Empire for decades, until his son's love drew him back to the light.",
+    color: "#1a0000",
+    lightsaberColor: "red",
+    initials: "DV",
+  },
+  {
+    id: "obi-wan-kenobi",
+    name: "Obi-Wan Kenobi",
+    slug: "obi-wan-kenobi",
+    side: "light",
+    forceSensitive: true,
+    species: "Human",
+    homeworld: "Stewjon",
+    affiliation: ["Jedi Order", "Rebel Alliance (spirit)"],
+    eras: ["fall-of-jedi", "age-of-empire"],
+    role: "Jedi Master",
+    description:
+      "Wise, measured, and deeply principled. Trained Anakin Skywalker and later Luke, guiding the Skywalker family from the shadows of Tatooine's twin suns.",
+    color: "#1a2a4a",
+    lightsaberColor: "blue",
+    initials: "OWK",
+  },
+  {
+    id: "yoda",
+    name: "Yoda",
+    slug: "yoda",
+    side: "light",
+    forceSensitive: true,
+    species: "Unknown",
+    homeworld: "Unknown",
+    affiliation: ["Jedi Order", "Jedi High Council"],
+    eras: ["old-republic", "high-republic", "fall-of-jedi", "age-of-empire"],
+    role: "Grand Jedi Master",
+    description:
+      "For 800 years he trained Jedi, serving as the Grand Master of the Order. Even in exile on Dagobah, the Force spoke through him — and he through it.",
+    color: "#0a2a0a",
+    lightsaberColor: "green",
+    initials: "YO",
+  },
+  {
+    id: "emperor-palpatine",
+    name: "Emperor Palpatine",
+    slug: "emperor-palpatine",
+    side: "dark",
+    forceSensitive: true,
+    species: "Human",
+    homeworld: "Naboo",
+    affiliation: ["Sith Order", "Galactic Republic (secretly)", "Galactic Empire", "First Order (posthumously)"],
+    eras: ["fall-of-jedi", "age-of-empire", "first-order"],
+    role: "Sith Emperor · Darth Sidious",
+    description:
+      "The most dangerous being in the galaxy. Manipulated the Clone Wars from both sides, dismantled democracy, and ruled as Emperor — only to return from death itself.",
+    color: "#1a0a00",
+    lightsaberColor: "red",
+    initials: "EP",
+  },
+  {
+    id: "leia-organa",
+    name: "Leia Organa",
+    slug: "leia-organa",
+    side: "light",
+    forceSensitive: true,
+    species: "Human",
+    homeworld: "Alderaan",
+    affiliation: ["Rebel Alliance", "New Republic", "Resistance"],
+    eras: ["age-of-empire", "new-republic", "first-order"],
+    role: "General · Princess · Senator",
+    description:
+      "Princess of Alderaan, senator, spy, general. One of the most tenacious fighters for freedom in the galaxy — and unknowingly a Jedi in her own right.",
+    color: "#2a1a3a",
+    lightsaberColor: "none",
+    initials: "LO",
+  },
+  {
+    id: "han-solo",
+    name: "Han Solo",
+    slug: "han-solo",
+    side: "neutral",
+    forceSensitive: false,
+    species: "Human",
+    homeworld: "Corellia",
+    affiliation: ["Rebel Alliance", "New Republic", "Galactic Empire (formerly)"],
+    eras: ["age-of-empire", "new-republic"],
+    role: "General · Smuggler · Pilot",
+    description:
+      "Smuggler. Scoundrel. Hero. Han Solo flew the Millennium Falcon from the Outer Rim slums to the heart of the Rebellion — never quite believing in the Force, but somehow always proving its point.",
+    color: "#2a1a08",
+    lightsaberColor: "none",
+    initials: "HS",
+  },
+  {
+    id: "ahsoka-tano",
+    name: "Ahsoka Tano",
+    slug: "ahsoka-tano",
+    side: "light",
+    forceSensitive: true,
+    species: "Togruta",
+    homeworld: "Shili",
+    affiliation: ["Jedi Order (formerly)", "Rebel Alliance", "The Ahsoka"],
+    eras: ["fall-of-jedi", "age-of-empire", "new-republic"],
+    role: "Former Jedi · Force-wielder",
+    description:
+      "Anakin Skywalker's Padawan who left the Jedi Order, fought through the Clone Wars, and spent decades as a lone Force-wielder hunting darkness across the galaxy.",
+    color: "#1a2a2a",
+    lightsaberColor: "white",
+    initials: "AT",
+  },
+  {
+    id: "mace-windu",
+    name: "Mace Windu",
+    slug: "mace-windu",
+    side: "light",
+    forceSensitive: true,
+    species: "Human",
+    homeworld: "Haruun Kal",
+    affiliation: ["Jedi Order", "Jedi High Council"],
+    eras: ["fall-of-jedi"],
+    role: "Jedi Master · Council Member",
+    description:
+      "The only Jedi to ever nearly defeat Palpatine in single combat. Wielded a violet blade with Vaapad — a form that walks the edge of the dark side.",
+    color: "#2a1a3a",
+    lightsaberColor: "purple",
+    initials: "MW",
+  },
+  {
+    id: "count-dooku",
+    name: "Count Dooku",
+    slug: "count-dooku",
+    side: "dark",
+    forceSensitive: true,
+    species: "Human",
+    homeworld: "Serenno",
+    affiliation: ["Sith Order", "Separatist Alliance", "formerly Jedi Order"],
+    eras: ["fall-of-jedi"],
+    role: "Sith Lord · Darth Tyranus",
+    description:
+      "Once a noble Jedi Master who left the Order in disillusionment. Manipulated by Palpatine into leading the Separatists as Darth Tyranus — and ultimately betrayed by him.",
+    color: "#0a1a0a",
+    lightsaberColor: "red",
+    initials: "CD",
+  },
+  {
+    id: "darth-maul",
+    name: "Darth Maul",
+    slug: "darth-maul",
+    side: "dark",
+    forceSensitive: true,
+    species: "Zabrak",
+    homeworld: "Dathomir",
+    affiliation: ["Sith Order", "Shadow Collective", "Crimson Dawn"],
+    eras: ["fall-of-jedi", "age-of-empire"],
+    role: "Sith Assassin · Crime Lord",
+    description:
+      "The first Sith the Jedi had faced in a millennium. Cut in half by Obi-Wan, but hatred kept him alive — surviving through sheer will to become a dangerous crime lord.",
+    color: "#2a0000",
+    lightsaberColor: "red",
+    initials: "DM",
+  },
+  {
+    id: "rey",
+    name: "Rey",
+    slug: "rey",
+    side: "light",
+    forceSensitive: true,
+    species: "Human",
+    homeworld: "Jakku",
+    affiliation: ["Resistance", "New Jedi Order"],
+    eras: ["first-order"],
+    role: "Jedi · Scavenger",
+    description:
+      "A scavenger from Jakku who discovered extraordinary Force ability. The granddaughter of Emperor Palpatine — who chose to end his bloodline by taking the Skywalker name.",
+    color: "#1a2a1a",
+    lightsaberColor: "yellow",
+    initials: "RE",
+  },
+  {
+    id: "kylo-ren",
+    name: "Kylo Ren",
+    slug: "kylo-ren",
+    side: "both",
+    forceSensitive: true,
+    species: "Human",
+    homeworld: "Chandrila",
+    affiliation: ["First Order", "Knights of Ren", "formerly Jedi"],
+    eras: ["first-order"],
+    role: "Supreme Leader · Redeemed",
+    description:
+      "Ben Solo, son of Han and Leia, turned to darkness under Snoke's influence. Became Supreme Leader of the First Order — then sacrificed himself to save Rey.",
+    color: "#1a0a1a",
+    lightsaberColor: "red",
+    initials: "KR",
+  },
+  {
+    id: "qui-gon-jinn",
+    name: "Qui-Gon Jinn",
+    slug: "qui-gon-jinn",
+    side: "light",
+    forceSensitive: true,
+    species: "Human",
+    homeworld: "Coruscant",
+    affiliation: ["Jedi Order"],
+    eras: ["fall-of-jedi"],
+    role: "Jedi Master",
+    description:
+      "A maverick Jedi who followed the Living Force above the Jedi Council's decrees. Discovered Anakin Skywalker and believed him to be the Chosen One — dying before he could train him.",
+    color: "#1a1a2a",
+    lightsaberColor: "green",
+    initials: "QGJ",
+  },
+  {
+    id: "general-grievous",
+    name: "General Grievous",
+    slug: "general-grievous",
+    side: "dark",
+    forceSensitive: false,
+    species: "Kaleesh (Cyborg)",
+    homeworld: "Kalee",
+    affiliation: ["Separatist Alliance"],
+    eras: ["fall-of-jedi"],
+    role: "Supreme Commander · Jedi Hunter",
+    description:
+      "A brilliant Kaleesh warlord rebuilt as a cybernetic weapon. Collected Jedi lightsabers as trophies — and hunted their masters across the galaxy.",
+    color: "#1a1a1a",
+    lightsaberColor: "none",
+    initials: "GG",
+  },
+];
+
+// ===== PLANETS =====
+export interface Planet {
+  id: string;
+  name: string;
+  slug: string;
+  region: string;
+  climate: string;
+  terrain: string;
+  description: string;
+  significance: string;
+  notableResidents: string[];
+  gradient: string;
+  accentColor: string;
+  population?: string;
+  moons?: string;
+}
+
+export const PLANETS: Planet[] = [
+  {
+    id: "tatooine",
+    name: "Tatooine",
+    slug: "tatooine",
+    region: "Outer Rim",
+    climate: "Arid / Desert",
+    terrain: "Dunes, Canyons, Salt Flats",
+    description:
+      "A remote desert world orbiting twin suns in the Outer Rim. Home to moisture farmers, Jawas, Tusken Raiders — and the birthplace of both Anakin and Luke Skywalker.",
+    significance: "Birthplace of Anakin Skywalker and Luke Skywalker",
+    notableResidents: ["Anakin Skywalker", "Luke Skywalker", "Obi-Wan Kenobi", "Jabba the Hutt"],
+    gradient: "radial-gradient(ellipse at 40% 35%, #f5c842 0%, #c87b2a 40%, #8a4a10 70%, #3a1500 100%)",
+    accentColor: "#f5c842",
+    population: "~200,000",
+    moons: "3",
+  },
+  {
+    id: "coruscant",
+    name: "Coruscant",
+    slug: "coruscant",
+    region: "Core Worlds",
+    climate: "Temperate (artificial)",
+    terrain: "City-wide (Ecumenopolis)",
+    description:
+      "The shining capital of the galaxy — an entire planet consumed by a single sprawling metropolis. Seat of the Galactic Republic, the Jedi Temple, and later the Empire.",
+    significance: "Galactic capital, seat of the Republic and Empire",
+    notableResidents: ["Emperor Palpatine", "Yoda", "Mace Windu", "Anakin Skywalker"],
+    gradient: "radial-gradient(ellipse at 50% 40%, #4a6fa5 0%, #2a3f6b 35%, #1a2040 60%, #050a1a 100%)",
+    accentColor: "#4a6fa5",
+    population: "~1 trillion",
+  },
+  {
+    id: "naboo",
+    name: "Naboo",
+    slug: "naboo",
+    region: "Mid Rim",
+    climate: "Temperate",
+    terrain: "Plains, Swamps, Underwater Cities",
+    description:
+      "A serene world of rolling meadows and gleaming cities. Home of Queen Padmé Amidala and the birthplace of Sheev Palpatine — beauty concealing dark origins.",
+    significance: "Birthplace of Palpatine, home of Padmé Amidala",
+    notableResidents: ["Padmé Amidala", "Emperor Palpatine", "Jar Jar Binks"],
+    gradient: "radial-gradient(ellipse at 40% 40%, #3a8abf 0%, #1a5a8f 30%, #2a6a3a 55%, #1a3a1a 80%, #081008 100%)",
+    accentColor: "#3a8abf",
+    population: "~4.5 billion",
+    moons: "2",
+  },
+  {
+    id: "hoth",
+    name: "Hoth",
+    slug: "hoth",
+    region: "Outer Rim",
+    climate: "Frozen / Tundra",
+    terrain: "Ice Plains, Mountains, Tundra",
+    description:
+      "A barren ice world at the edge of the Outer Rim. Remote enough to hide the Rebel Alliance's Echo Base — until the Empire tracked them down and launched its devastating AT-AT assault.",
+    significance: "Site of Echo Base and the Empire's crushing victory",
+    notableResidents: ["Luke Skywalker", "Han Solo", "Leia Organa"],
+    gradient: "radial-gradient(ellipse at 50% 40%, #e8f4f8 0%, #a8d4e8 30%, #5a9ab5 60%, #1a4a6b 100%)",
+    accentColor: "#a8d4e8",
+    moons: "3",
+  },
+  {
+    id: "dagobah",
+    name: "Dagobah",
+    slug: "dagobah",
+    region: "Outer Rim",
+    climate: "Murky / Swamp",
+    terrain: "Swamps, Bogs, Jungle",
+    description:
+      "A remote, fog-shrouded swamp world saturated with the Force. Yoda chose it for exile specifically because the Living Force here masked his presence from the Emperor.",
+    significance: "Yoda's exile and Luke's training ground",
+    notableResidents: ["Yoda"],
+    gradient: "radial-gradient(ellipse at 40% 60%, #1a4a1a 0%, #0a2a0a 40%, #051505 100%)",
+    accentColor: "#2a6a2a",
+  },
+  {
+    id: "endor",
+    name: "Endor",
+    slug: "endor",
+    region: "Outer Rim",
+    climate: "Temperate / Forest",
+    terrain: "Forests, Mountains, Meadows",
+    description:
+      "The forest moon of Endor — home to the Ewoks and site of the galaxy's most unlikely battle. The second Death Star hung in orbit here until the Rebel Alliance destroyed it.",
+    significance: "Site of the Battle of Endor and Death Star II's destruction",
+    notableResidents: ["Ewoks", "Han Solo", "Luke Skywalker"],
+    gradient: "radial-gradient(ellipse at 30% 40%, #4a8a2a 0%, #2a5a10 40%, #1a3a08 70%, #080f03 100%)",
+    accentColor: "#4a8a2a",
+  },
+  {
+    id: "kamino",
+    name: "Kamino",
+    slug: "kamino",
+    region: "Outer Rim",
+    climate: "Stormy / Aquatic",
+    terrain: "Ocean (entirely covered)",
+    description:
+      "An ocean world battered by endless storms. Home of the Kaminoans — master cloners who secretly engineered the Grand Army of the Republic from Jango Fett's DNA.",
+    significance: "Birthplace of the Clone Army",
+    notableResidents: ["Jango Fett", "Boba Fett"],
+    gradient: "radial-gradient(ellipse at 50% 30%, #a8d4e8 0%, #2a6a8f 30%, #1a3a5f 60%, #050a1a 100%)",
+    accentColor: "#2a8abf",
+  },
+  {
+    id: "mustafar",
+    name: "Mustafar",
+    slug: "mustafar",
+    region: "Outer Rim",
+    climate: "Scorching / Volcanic",
+    terrain: "Lava Rivers, Volcanic Rock, Mining Facilities",
+    description:
+      "A tortured volcanic world of rivers of fire. Where Anakin Skywalker fought Obi-Wan Kenobi, lost three limbs, and was consumed by flame — emerging as Darth Vader.",
+    significance: "Site of Anakin's fall and transformation into Vader",
+    notableResidents: ["Darth Vader (castle)"],
+    gradient: "radial-gradient(ellipse at 50% 50%, #ff4500 0%, #cc2200 30%, #8a1000 60%, #2a0000 100%)",
+    accentColor: "#ff4500",
+  },
+  {
+    id: "mandalore",
+    name: "Mandalore",
+    slug: "mandalore",
+    region: "Outer Rim",
+    climate: "Harsh (post-war)",
+    terrain: "Deserts, Domed Cities",
+    description:
+      "Homeworld of the legendary Mandalorian warriors. Once a lush world, centuries of war reduced it to a barren wasteland — its people retreating into domed cities above the sand.",
+    significance: "Homeworld of Mandalorian culture and warriors",
+    notableResidents: ["Duchess Satine", "Bo-Katan", "Pre Vizsla"],
+    gradient: "radial-gradient(ellipse at 40% 40%, #8a7a6a 0%, #5a4a3a 40%, #3a2a1a 70%, #1a1000 100%)",
+    accentColor: "#8a7a6a",
+  },
+  {
+    id: "scarif",
+    name: "Scarif",
+    slug: "scarif",
+    region: "Outer Rim",
+    climate: "Tropical",
+    terrain: "Beaches, Jungle, Imperial Citadel",
+    description:
+      "A paradise planet turned military fortress. The Empire built its most secure data vault here — and Rogue One gave their lives to steal the Death Star plans from its shores.",
+    significance: "Site of Rogue One's sacrifice and Death Star plan theft",
+    notableResidents: ["Jyn Erso", "Cassian Andor"],
+    gradient: "radial-gradient(ellipse at 40% 30%, #2a8a6a 0%, #1a5a4a 40%, #0a3a2a 70%, #031510 100%)",
+    accentColor: "#2a8a6a",
+  },
+  {
+    id: "jedha",
+    name: "Jedha",
+    slug: "jedha",
+    region: "Mid Rim",
+    climate: "Cold / Desert",
+    terrain: "Canyons, Holy City, Ancient Temples",
+    description:
+      "A holy moon ancient in Force tradition. Pilgrims from across the galaxy traveled to its Holy City — until the Empire mined its kyber crystals and tested the Death Star on it.",
+    significance: "Ancient Force pilgrimage site, destroyed by the Death Star",
+    notableResidents: ["Chirrut Îmwe", "Baze Malbus", "Saw Gerrera"],
+    gradient: "radial-gradient(ellipse at 50% 40%, #8a8a6a 0%, #5a5a3a 40%, #3a3a1a 70%, #141400 100%)",
+    accentColor: "#c8b86a",
+  },
+  {
+    id: "jakku",
+    name: "Jakku",
+    slug: "jakku",
+    region: "Outer Rim",
+    climate: "Arid / Desert",
+    terrain: "Dunes, Starship Graveyard",
+    description:
+      "A desolate desert world littered with the wreckage of the Battle of Jakku — downed Star Destroyers and Imperial walkers half-buried in the sand. Home to scavenger Rey.",
+    significance: "Home of Rey; site of the final battle of the Civil War",
+    notableResidents: ["Rey", "Unkar Plutt"],
+    gradient: "radial-gradient(ellipse at 50% 40%, #c8a060 0%, #8a6030 40%, #4a3010 70%, #1a0f00 100%)",
+    accentColor: "#c8a060",
+  },
+];
+
+// ===== FACTIONS =====
+export interface Faction {
+  id: string;
+  name: string;
+  slug: string;
+  side: "light" | "dark" | "neutral";
+  eras: string[];
+  eraColor: string;
+  description: string;
+  color: string;
+  emblem: string;
+  leaders: string[];
+  military: string[];
+  founded: string;
+  dissolved?: string;
+  capital: string;
+}
+
+export const FACTIONS: Faction[] = [
+  {
+    id: "jedi-order",
+    name: "Jedi Order",
+    slug: "jedi-order",
+    side: "light",
+    eras: ["old-republic", "high-republic", "fall-of-jedi"],
+    eraColor: "#0EA5E9",
+    description:
+      "Guardians of peace and justice in the Galactic Republic for thousands of years. The Jedi wielded the light side of the Force, bound by a code of compassion, serenity, and selflessness.",
+    color: "#4DACFF",
+    emblem: "✦",
+    leaders: ["Yoda", "Mace Windu", "Qui-Gon Jinn", "Obi-Wan Kenobi"],
+    military: ["Jedi Knights", "Jedi Masters", "Clone Army (Clone Wars)", "Padawans"],
+    founded: "c. 25,000 BBY",
+    dissolved: "19 BBY (Order 66)",
+    capital: "Coruscant (Jedi Temple)",
+  },
+  {
+    id: "sith-order",
+    name: "Sith Order",
+    slug: "sith-order",
+    side: "dark",
+    eras: ["old-republic", "fall-of-jedi", "age-of-empire"],
+    eraColor: "#6D28D9",
+    description:
+      "Ancient enemies of the Jedi who draw power from the dark side — passion, strength, power, victory, freedom. After the Rule of Two, only ever two: a master and an apprentice.",
+    color: "#EF4444",
+    emblem: "◈",
+    leaders: ["Darth Bane", "Darth Plagueis", "Darth Sidious", "Darth Vader"],
+    military: ["Sith Assassins", "Inquisitorius", "Imperial forces"],
+    founded: "c. 6,900 BBY (old order) / 1,000 BBY (Rule of Two)",
+    capital: "Exegol (hidden)",
+  },
+  {
+    id: "galactic-republic",
+    name: "Galactic Republic",
+    slug: "galactic-republic",
+    side: "light",
+    eras: ["old-republic", "high-republic", "fall-of-jedi"],
+    eraColor: "#0EA5E9",
+    description:
+      "The democratic government that united countless star systems for over 25,000 years. Defended by the Jedi Order and, in its final decades, the Grand Army of the Republic.",
+    color: "#4DACFF",
+    emblem: "◉",
+    leaders: ["Supreme Chancellor Palpatine", "Padmé Amidala", "Mon Mothma"],
+    military: ["Grand Army of the Republic", "Clone Troopers", "Republic Navy"],
+    founded: "c. 25,053 BBY",
+    dissolved: "19 BBY (transformed into the Empire)",
+    capital: "Coruscant",
+  },
+  {
+    id: "separatist-alliance",
+    name: "Separatist Alliance",
+    slug: "separatist-alliance",
+    side: "dark",
+    eras: ["fall-of-jedi"],
+    eraColor: "#F59E0B",
+    description:
+      "The Confederacy of Independent Systems — thousands of star systems that seceded from the Republic. Secretly orchestrated by Darth Sidious to justify a galactic war and seize power.",
+    color: "#F59E0B",
+    emblem: "⬡",
+    leaders: ["Count Dooku", "General Grievous", "Nute Gunray", "Wat Tambor"],
+    military: ["Droid Army", "B1 Battle Droids", "B2 Super Battle Droids", "Droid Starfighter Corps"],
+    founded: "24 BBY",
+    dissolved: "19 BBY (Order 66)",
+    capital: "Raxus Secundus",
+  },
+  {
+    id: "galactic-empire",
+    name: "Galactic Empire",
+    slug: "galactic-empire",
+    side: "dark",
+    eras: ["age-of-empire"],
+    eraColor: "#EF4444",
+    description:
+      "The authoritarian regime born from the ashes of the Republic. Ruling through fear, the Death Star, and an iron-fisted military, the Empire dominated the galaxy for over two decades.",
+    color: "#9CA3AF",
+    emblem: "⬛",
+    leaders: ["Emperor Palpatine", "Darth Vader", "Grand Moff Tarkin", "Director Krennic"],
+    military: ["Imperial Stormtroopers", "Imperial Navy", "Death Star", "TIE Fighters", "AT-AT Walkers"],
+    founded: "19 BBY",
+    dissolved: "5 ABY (Battle of Jakku)",
+    capital: "Coruscant",
+  },
+  {
+    id: "rebel-alliance",
+    name: "Rebel Alliance",
+    slug: "rebel-alliance",
+    side: "light",
+    eras: ["age-of-empire"],
+    eraColor: "#EF4444",
+    description:
+      "The Alliance to Restore the Republic — a coalition of freedom fighters from every corner of the galaxy. They destroyed two Death Stars and ended the Empire's reign of terror.",
+    color: "#EF4444",
+    emblem: "✪",
+    leaders: ["Mon Mothma", "Princess Leia", "Admiral Ackbar", "General Dodonna"],
+    military: ["X-Wing Squadrons", "Y-Wing Bombers", "Mon Calamari Cruisers", "Rebel Troopers"],
+    founded: "2 BBY (formally)",
+    dissolved: "5 ABY (reformed as New Republic)",
+    capital: "Rebel Base (various) / Home One",
+  },
+  {
+    id: "new-republic",
+    name: "New Republic",
+    slug: "new-republic",
+    side: "light",
+    eras: ["new-republic"],
+    eraColor: "#3B82F6",
+    description:
+      "The democratic government established after the Empire's fall. Sought to demilitarize and restore freedom — but its complacency allowed the First Order to rise from the shadows.",
+    color: "#3B82F6",
+    emblem: "◎",
+    leaders: ["Mon Mothma", "Chancellor Villecham", "Leia Organa"],
+    military: ["New Republic Defense Fleet", "Starfighter Corps"],
+    founded: "4 ABY",
+    dissolved: "34 ABY (Hosnian Cataclysm)",
+    capital: "Chandrila, then Hosnian Prime",
+  },
+  {
+    id: "first-order",
+    name: "First Order",
+    slug: "first-order",
+    side: "dark",
+    eras: ["first-order"],
+    eraColor: "#6B7280",
+    description:
+      "The successor to the Galactic Empire — a military junta that arose from Imperial remnants hiding in the Unknown Regions. Built Starkiller Base and shattered the New Republic in an instant.",
+    color: "#6B7280",
+    emblem: "✖",
+    leaders: ["Supreme Leader Snoke", "Kylo Ren", "General Hux"],
+    military: ["Stormtroopers", "First Order Navy", "TIE Silencers", "AT-M6 Walkers", "Starkiller Base"],
+    founded: "c. 28 ABY",
+    dissolved: "35 ABY (Rise of Skywalker)",
+    capital: "Starkiller Base / Steadfast",
+  },
+];

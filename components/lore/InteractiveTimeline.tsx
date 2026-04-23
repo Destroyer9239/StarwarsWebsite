@@ -1,460 +1,367 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import {
+  Swords, Globe, User, Cpu, Sparkles, Filter, ExternalLink,
+} from "lucide-react";
 import { ERAS, TIMELINE_EVENTS, type TimelineEvent } from "@/lib/data";
 
-// ===== LAYOUT CONSTANTS =====
-const PX_PER_YEAR = 8;
-const TRACK_HEIGHT = 180;
-const ERA_BAND_HEIGHT = 28;
-const EVENT_ROW_HEIGHT = 70;
-const ROWS = 3;
+const CATEGORIES = [
+  { id: "all", label: "All Events", icon: Filter, color: "#FFE81F" },
+  { id: "battle", label: "Battles", icon: Swords, color: "#EF4444" },
+  { id: "political", label: "Political", icon: Globe, color: "#FFE81F" },
+  { id: "character", label: "Characters", icon: User, color: "#4DACFF" },
+  { id: "technology", label: "Technology", icon: Cpu, color: "#00D4AA" },
+  { id: "force", label: "Force", icon: Sparkles, color: "#8B5CF6" },
+] as const;
 
-const CATEGORIES = ["all", "battle", "political", "character", "technology", "force"] as const;
-type CategoryFilter = (typeof CATEGORIES)[number];
-
-function yearToX(year: number): number {
-  const MIN_YEAR = -25100;
-  return (year - MIN_YEAR) * PX_PER_YEAR;
-}
+type CategoryId = (typeof CATEGORIES)[number]["id"];
 
 function formatYear(year: number): string {
-  return year <= 0
-    ? `${Math.abs(year).toLocaleString()} BBY`
-    : `${year} ABY`;
+  return year <= 0 ? `${Math.abs(year).toLocaleString()} BBY` : `${year} ABY`;
 }
 
-// Assign events to rows to prevent overlap
-function assignRows(events: TimelineEvent[]): (TimelineEvent & { row: number })[] {
-  const sorted = [...events].sort((a, b) => a.year - b.year);
-  const rowEnds: number[] = Array(ROWS).fill(-Infinity);
-  const MIN_SPACING = 150;
-
-  return sorted.map((evt) => {
-    const x = yearToX(evt.year);
-    let chosenRow = 0;
-    let minEnd = Infinity;
-    for (let r = 0; r < ROWS; r++) {
-      if (rowEnds[r] < x - MIN_SPACING && rowEnds[r] < minEnd) {
-        minEnd = rowEnds[r];
-        chosenRow = r;
-      }
-    }
-    rowEnds[chosenRow] = x + MIN_SPACING;
-    return { ...evt, row: chosenRow };
-  });
-}
-
-// ===== EVENT NODE =====
-function EventNode({
-  event,
-  isSelected,
-  onClick,
-}: {
-  event: TimelineEvent & { row: number };
-  isSelected: boolean;
-  onClick: () => void;
-}) {
-  const x = yearToX(event.year);
-  const y = ERA_BAND_HEIGHT + 20 + event.row * EVENT_ROW_HEIGHT;
-
-  const sizeMap = { critical: 14, major: 10, minor: 7 };
-  const size = sizeMap[event.importance];
-
-  const categoryColors: Record<string, string> = {
-    battle: "#EF4444",
-    political: "#FFE81F",
-    character: "#4DACFF",
-    technology: "#00D4AA",
-    force: "#8B5CF6",
-  };
-  const color = categoryColors[event.category] ?? "#888";
-
+// ─── Category pill ───────────────────────────────────────────────────────────
+function CategoryBadge({ category }: { category: string }) {
+  const cat = CATEGORIES.find((c) => c.id === category);
+  if (!cat || cat.id === "all") return null;
+  const Icon = cat.icon;
   return (
-    <motion.g
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ delay: Math.random() * 0.3 }}
-      onClick={onClick}
-      style={{ cursor: "pointer" }}
+    <span
+      className="inline-flex items-center gap-1 text-[10px] font-display uppercase tracking-widest px-2 py-0.5 rounded-full font-bold"
+      style={{ color: cat.color, background: `${cat.color}18`, border: `1px solid ${cat.color}30` }}
     >
-      {/* Connector line to timeline axis */}
-      <line
-        x1={x}
-        y1={ERA_BAND_HEIGHT + 4}
-        x2={x}
-        y2={y - size - 4}
-        stroke={color}
-        strokeWidth={1}
-        strokeOpacity={0.3}
-        strokeDasharray="3,3"
-      />
-      {/* Outer glow ring when selected */}
-      {isSelected && (
-        <circle cx={x} cy={y} r={size + 8} fill={color} fillOpacity={0.15} />
-      )}
-      {/* Main node */}
-      <circle
-        cx={x}
-        cy={y}
-        r={size}
-        fill={isSelected ? color : `${color}33`}
-        stroke={color}
-        strokeWidth={isSelected ? 2 : 1.5}
-        filter={isSelected ? `drop-shadow(0 0 6px ${color})` : undefined}
-      />
-      {/* Inner dot */}
-      <circle cx={x} cy={y} r={size * 0.35} fill={color} />
-
-      {/* Year label */}
-      <text
-        x={x}
-        y={ERA_BAND_HEIGHT - 6}
-        textAnchor="middle"
-        fill={color}
-        fontSize={9}
-        fontFamily="Orbitron, monospace"
-        fillOpacity={0.8}
-      >
-        {formatYear(event.year)}
-      </text>
-    </motion.g>
+      <Icon size={9} />
+      {cat.label}
+    </span>
   );
 }
 
-// ===== DETAIL POPUP =====
-function EventDetail({ event, onClose }: { event: TimelineEvent; onClose: () => void }) {
-  const categoryColors: Record<string, string> = {
-    battle: "#EF4444",
-    political: "#FFE81F",
-    character: "#4DACFF",
-    technology: "#00D4AA",
-    force: "#8B5CF6",
+// ─── Single event card ────────────────────────────────────────────────────────
+function EventCard({
+  event,
+  side,
+  index,
+}: {
+  event: TimelineEvent;
+  side: "left" | "right";
+  index: number;
+}) {
+  const importanceMap = {
+    critical: { border: "2px", glow: 0.3, labelColor: "#EF4444", label: "Critical" },
+    major: { border: "1.5px", glow: 0.15, labelColor: "#FFE81F", label: "Major" },
+    minor: { border: "1px", glow: 0.05, labelColor: "#94A3B8", label: "Minor" },
   };
-  const color = categoryColors[event.category] ?? "#888";
-
-  const era = ERAS.find((e) => e.id === event.era);
+  const imp = importanceMap[event.importance];
 
   return (
-    <AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0, x: side === "left" ? -40 : 40 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.55, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+      className={`relative flex ${side === "left" ? "justify-end pr-8 md:pr-12" : "justify-start pl-8 md:pl-12"} w-full md:w-1/2 ${
+        side === "left" ? "md:self-end md:mr-auto" : "md:self-start md:ml-auto"
+      }`}
+    >
+      {/* Connector dot on the spine */}
+      <div
+        className="absolute top-5 rounded-full z-10"
+        style={{
+          width: event.importance === "critical" ? 14 : event.importance === "major" ? 10 : 7,
+          height: event.importance === "critical" ? 14 : event.importance === "major" ? 10 : 7,
+          background: event.eraColor,
+          boxShadow: `0 0 ${event.importance === "critical" ? 16 : 8}px ${event.eraColor}${Math.round(imp.glow * 255).toString(16).padStart(2, "0")}`,
+          [side === "left" ? "right" : "left"]: side === "left" ? "-7px" : "-7px",
+          transform: "translateX(50%)",
+          ...(side === "right" ? { transform: "translateX(-50%)" } : {}),
+        }}
+      />
+
+      {/* Card */}
+      <div
+        className="max-w-sm w-full rounded-2xl p-4 transition-all duration-300 hover:-translate-y-1 group cursor-default"
+        style={{
+          background: "rgba(255,255,255,0.03)",
+          backdropFilter: "blur(16px)",
+          border: `${imp.border} solid ${event.eraColor}25`,
+          boxShadow: `0 0 30px ${event.eraColor}${Math.round(imp.glow * 120).toString(16).padStart(2, "0")}`,
+        }}
+      >
+        {/* Top row: category + year */}
+        <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+          <CategoryBadge category={event.category} />
+          <span
+            className="text-[10px] font-display tracking-widest uppercase font-bold ml-auto"
+            style={{ color: event.eraColor }}
+          >
+            {event.yearLabel}
+          </span>
+        </div>
+
+        {/* Title */}
+        <h3 className="font-display text-sm font-bold text-white leading-snug mb-1.5 group-hover:text-opacity-90 transition-colors">
+          {event.title}
+        </h3>
+
+        {/* Description */}
+        <p className="text-xs text-slate-400 leading-relaxed">
+          {event.description}
+        </p>
+
+        {/* Importance */}
+        {event.importance === "critical" && (
+          <div
+            className="mt-3 pt-2.5 border-t flex items-center gap-1.5 text-[10px] font-display uppercase tracking-widest"
+            style={{ borderColor: `${event.eraColor}20`, color: imp.labelColor }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+            Pivotal Moment
+          </div>
+        )}
+
+        {event.linkedSlug && (
+          <Link
+            href={`/battles/${event.linkedSlug}`}
+            className="mt-2 inline-flex items-center gap-1 text-[10px] text-slate-500 hover:text-gold transition-colors"
+          >
+            <ExternalLink size={9} />
+            Full battle report
+          </Link>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Era section ──────────────────────────────────────────────────────────────
+function EraSection({
+  eraId,
+  events,
+}: {
+  eraId: string;
+  events: TimelineEvent[];
+}) {
+  const era = ERAS.find((e) => e.id === eraId)!;
+  if (!era || events.length === 0) return null;
+
+  const sorted = [...events].sort((a, b) => a.year - b.year);
+
+  return (
+    <div id={eraId} className="relative mb-6">
+      {/* Era header */}
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.95 }}
-        transition={{ duration: 0.25 }}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-full max-w-md"
+        initial={{ opacity: 0, y: -10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="relative flex items-center gap-4 py-5 px-6 mb-8 rounded-2xl overflow-hidden"
+        style={{ background: `${era.color}10`, border: `1px solid ${era.color}25` }}
       >
         <div
-          className="glass rounded-2xl p-5 shadow-2xl border"
-          style={{ borderColor: `${color}30` }}
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span
-                  className="text-xs font-display tracking-widest uppercase px-2 py-0.5 rounded"
-                  style={{ color, background: `${color}15` }}
-                >
-                  {event.category}
-                </span>
-                <span
-                  className="text-xs font-display tracking-wider uppercase px-2 py-0.5 rounded"
-                  style={{ color: era?.color, background: `${era?.color}15` }}
-                >
-                  {event.yearLabel}
-                </span>
-              </div>
-              <h3 className="font-display text-base font-bold text-white">{event.title}</h3>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors ml-2"
-            >
-              <X size={16} />
-            </button>
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `radial-gradient(ellipse at 0% 50%, ${era.color}15 0%, transparent 70%)`,
+          }}
+        />
+        <div
+          className="w-3 h-3 rounded-full flex-shrink-0"
+          style={{ background: era.color, boxShadow: `0 0 12px ${era.color}` }}
+        />
+        <div className="relative">
+          <div
+            className="font-display text-lg md:text-xl font-black uppercase tracking-[0.12em]"
+            style={{ color: era.color }}
+          >
+            {era.name}
           </div>
-          <p className="text-sm text-slate-300 leading-relaxed">{event.description}</p>
-          {era && (
-            <div className="mt-3 pt-3 border-t border-white/10 text-xs text-slate-500">
-              Era: <span style={{ color: era.color }}>{era.name}</span>
-            </div>
-          )}
+          <div className="text-xs text-slate-500 mt-0.5">{era.description}</div>
+        </div>
+        <div className="ml-auto text-right flex-shrink-0">
+          <div className="font-display text-xs text-slate-600 uppercase tracking-wider">
+            {formatYear(era.startYear)} — {formatYear(era.endYear)}
+          </div>
+          <div className="text-xs text-slate-700 mt-0.5">{events.length} events</div>
         </div>
       </motion.div>
-    </AnimatePresence>
+
+      {/* Vertical spine + cards */}
+      <div className="relative">
+        {/* Center line */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px hidden md:block"
+          style={{
+            background: `linear-gradient(to bottom, transparent, ${era.color}50 10%, ${era.color}50 90%, transparent)`,
+            boxShadow: `0 0 8px ${era.color}30`,
+          }}
+        />
+        {/* Mobile side line */}
+        <div
+          className="absolute left-3 top-0 bottom-0 w-px md:hidden"
+          style={{
+            background: `linear-gradient(to bottom, transparent, ${era.color}50 10%, ${era.color}50 90%, transparent)`,
+          }}
+        />
+
+        {/* Events */}
+        <div className="flex flex-col gap-8">
+          {sorted.map((evt, i) => {
+            const side: "left" | "right" = i % 2 === 0 ? "left" : "right";
+            return (
+              <div key={evt.id} className="relative flex md:flex-row flex-col items-start">
+                {/* Desktop alternating */}
+                <div className="hidden md:flex w-full items-start">
+                  {side === "left" ? (
+                    <>
+                      <div className="w-1/2 flex justify-end pr-12">
+                        <EventCard event={evt} side="left" index={i} />
+                      </div>
+                      <div className="w-1/2" />
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-1/2" />
+                      <div className="w-1/2 flex justify-start pl-12">
+                        <EventCard event={evt} side="right" index={i} />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Mobile: all on right of line */}
+                <div className="md:hidden pl-8 w-full">
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.45, delay: i * 0.04 }}
+                    className="relative"
+                  >
+                    {/* Connector dot */}
+                    <div
+                      className="absolute -left-8 top-5 rounded-full"
+                      style={{
+                        width: evt.importance === "critical" ? 12 : 8,
+                        height: evt.importance === "critical" ? 12 : 8,
+                        background: era.color,
+                        left: "-1.5rem",
+                        boxShadow: `0 0 8px ${era.color}60`,
+                      }}
+                    />
+                    <div
+                      className="rounded-2xl p-4"
+                      style={{
+                        background: "rgba(255,255,255,0.03)",
+                        backdropFilter: "blur(16px)",
+                        border: `1px solid ${era.color}25`,
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                        <CategoryBadge category={evt.category} />
+                        <span className="text-[10px] font-display tracking-widest uppercase font-bold ml-auto" style={{ color: era.color }}>
+                          {evt.yearLabel}
+                        </span>
+                      </div>
+                      <h3 className="font-display text-sm font-bold text-white leading-snug mb-1.5">
+                        {evt.title}
+                      </h3>
+                      <p className="text-xs text-slate-400 leading-relaxed">{evt.description}</p>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
 
-// ===== MAIN COMPONENT =====
+// ─── Main component ───────────────────────────────────────────────────────────
 export function InteractiveTimeline() {
-  const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
-  const [filter, setFilter] = useState<CategoryFilter>("all");
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const scrollLeft = useRef(0);
+  const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
 
-  const allEvents = assignRows(TIMELINE_EVENTS);
-  const filteredEvents =
-    filter === "all" ? allEvents : allEvents.filter((e) => e.category === filter);
+  const filtered =
+    activeCategory === "all"
+      ? TIMELINE_EVENTS
+      : TIMELINE_EVENTS.filter((e) => e.category === activeCategory);
 
-  const totalWidth = yearToX(40) + 200; // rightmost point + padding
-  const svgHeight = ERA_BAND_HEIGHT + 20 + ROWS * EVENT_ROW_HEIGHT + 20;
-
-  // Drag scroll
-  const onMouseDown = useCallback((e: React.MouseEvent) => {
-    isDragging.current = true;
-    startX.current = e.pageX - (containerRef.current?.offsetLeft ?? 0);
-    scrollLeft.current = containerRef.current?.scrollLeft ?? 0;
-  }, []);
-
-  const onMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging.current || !containerRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - containerRef.current.offsetLeft;
-    const delta = (x - startX.current) * 1.5;
-    containerRef.current.scrollLeft = scrollLeft.current - delta;
-  }, []);
-
-  const onMouseUp = useCallback(() => {
-    isDragging.current = false;
-  }, []);
-
-  // Scroll to present (0 ABY/BBY)
-  useEffect(() => {
-    if (containerRef.current) {
-      const centerX = yearToX(0);
-      containerRef.current.scrollLeft =
-        centerX - containerRef.current.clientWidth / 2;
-    }
-  }, []);
-
-  const scroll = (dir: -1 | 1) => {
-    if (containerRef.current) {
-      containerRef.current.scrollLeft += dir * 400;
-    }
-  };
-
-  const categoryColors: Record<string, string> = {
-    all: "#FFE81F",
-    battle: "#EF4444",
-    political: "#FFE81F",
-    character: "#4DACFF",
-    technology: "#00D4AA",
-    force: "#8B5CF6",
-  };
+  const byEra = ERAS.reduce<Record<string, TimelineEvent[]>>((acc, era) => {
+    acc[era.id] = filtered.filter((e) => e.era === era.id);
+    return acc;
+  }, {});
 
   return (
-    <div className="space-y-4">
-      {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Filter size={14} className="text-slate-500" />
-          {CATEGORIES.map((cat) => (
+    <div className="space-y-6">
+      {/* Filter bar */}
+      <div className="flex flex-wrap gap-2 items-center">
+        {CATEGORIES.map((cat) => {
+          const Icon = cat.icon;
+          const active = activeCategory === cat.id;
+          return (
             <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`text-xs font-display uppercase tracking-wider px-3 py-1.5 rounded-lg border transition-all duration-200 ${
-                filter === cat
-                  ? "border-current font-bold"
-                  : "border-white/10 text-slate-500 hover:text-slate-300"
-              }`}
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-display uppercase tracking-wider font-bold transition-all duration-200"
               style={
-                filter === cat
+                active
                   ? {
-                      color: categoryColors[cat],
-                      background: `${categoryColors[cat]}15`,
-                      borderColor: `${categoryColors[cat]}40`,
+                      color: cat.color,
+                      background: `${cat.color}18`,
+                      border: `1px solid ${cat.color}40`,
+                      boxShadow: `0 0 12px ${cat.color}20`,
                     }
-                  : {}
+                  : {
+                      color: "#64748b",
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.07)",
+                    }
               }
             >
-              {cat}
+              <Icon size={11} />
+              {cat.label}
             </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => scroll(-1)}
-            className="p-2 glass rounded-lg border border-white/10 text-slate-400 hover:text-white transition-colors"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <button
-            onClick={() => scroll(1)}
-            className="p-2 glass rounded-lg border border-white/10 text-slate-400 hover:text-white transition-colors"
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
+          );
+        })}
+        <span className="ml-auto text-xs text-slate-600">
+          {filtered.length} event{filtered.length !== 1 ? "s" : ""}
+        </span>
       </div>
 
-      {/* Era legend */}
-      <div className="flex flex-wrap gap-3">
+      {/* Era jump links */}
+      <div className="flex flex-wrap gap-2">
         {ERAS.map((era) => (
-          <div key={era.id} className="flex items-center gap-1.5 text-xs text-slate-500">
-            <span
-              className="w-2 h-2 rounded-sm flex-shrink-0"
-              style={{ background: era.color }}
-            />
+          <a
+            key={era.id}
+            href={`#${era.id}`}
+            className="text-[10px] font-display uppercase tracking-widest px-2.5 py-1 rounded-lg transition-all duration-200 hover:opacity-100"
+            style={{
+              color: era.color,
+              background: `${era.color}10`,
+              border: `1px solid ${era.color}20`,
+              opacity: byEra[era.id]?.length ? 0.8 : 0.3,
+            }}
+          >
             {era.shortName}
-          </div>
+          </a>
         ))}
       </div>
 
-      {/* Timeline canvas */}
-      <div className="relative glass rounded-2xl border border-white/10 overflow-hidden">
-        <div
-          ref={containerRef}
-          className="timeline-container overflow-x-scroll select-none"
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
-          style={{ height: svgHeight + 8 }}
-        >
-          <svg
-            width={totalWidth}
-            height={svgHeight}
-            style={{ display: "block", minWidth: totalWidth }}
-          >
-            {/* Era bands */}
-            {ERAS.map((era) => {
-              const x1 = yearToX(era.startYear);
-              const x2 = yearToX(era.endYear);
-              return (
-                <g key={era.id}>
-                  <rect
-                    x={x1}
-                    y={0}
-                    width={x2 - x1}
-                    height={ERA_BAND_HEIGHT}
-                    fill={era.color}
-                    fillOpacity={0.15}
-                  />
-                  <rect
-                    x={x1}
-                    y={0}
-                    width={x2 - x1}
-                    height={ERA_BAND_HEIGHT}
-                    fill="none"
-                    stroke={era.color}
-                    strokeWidth={1}
-                    strokeOpacity={0.3}
-                  />
-                  <text
-                    x={x1 + (x2 - x1) / 2}
-                    y={ERA_BAND_HEIGHT / 2 + 4}
-                    textAnchor="middle"
-                    fill={era.color}
-                    fontSize={9}
-                    fontFamily="Orbitron, monospace"
-                    fillOpacity={0.9}
-                  >
-                    {era.shortName.toUpperCase()}
-                  </text>
-                </g>
-              );
-            })}
-
-            {/* Timeline axis */}
-            <line
-              x1={0}
-              y1={ERA_BAND_HEIGHT + 4}
-              x2={totalWidth}
-              y2={ERA_BAND_HEIGHT + 4}
-              stroke="rgba(255,255,255,0.1)"
-              strokeWidth={1}
-            />
-
-            {/* Year tick marks every 5 years in modern era, 1000 in ancient */}
-            {Array.from({ length: 80 }, (_, i) => i - 35).map((yr) => {
-              const x = yearToX(yr);
-              return (
-                <g key={yr}>
-                  <line
-                    x1={x}
-                    y1={ERA_BAND_HEIGHT + 1}
-                    x2={x}
-                    y2={ERA_BAND_HEIGHT + 8}
-                    stroke="rgba(255,255,255,0.2)"
-                    strokeWidth={1}
-                  />
-                  {yr % 10 === 0 && (
-                    <text
-                      x={x}
-                      y={svgHeight - 4}
-                      textAnchor="middle"
-                      fill="rgba(255,255,255,0.2)"
-                      fontSize={8}
-                      fontFamily="monospace"
-                    >
-                      {formatYear(yr)}
-                    </text>
-                  )}
-                </g>
-              );
-            })}
-
-            {/* "Now" line at 0 ABY */}
-            <line
-              x1={yearToX(0)}
-              y1={ERA_BAND_HEIGHT}
-              x2={yearToX(0)}
-              y2={svgHeight - 20}
-              stroke="rgba(255,232,31,0.4)"
-              strokeWidth={1}
-              strokeDasharray="4,3"
-            />
-            <text
-              x={yearToX(0) + 4}
-              y={ERA_BAND_HEIGHT + 14}
-              fill="rgba(255,232,31,0.6)"
-              fontSize={8}
-              fontFamily="Orbitron, monospace"
-            >
-              Battle of Yavin
-            </text>
-
-            {/* Events */}
-            {filteredEvents.map((evt) => (
-              <EventNode
-                key={evt.id}
-                event={evt}
-                isSelected={selectedEvent?.id === evt.id}
-                onClick={() =>
-                  setSelectedEvent(selectedEvent?.id === evt.id ? null : evt)
-                }
-              />
-            ))}
-          </svg>
-        </div>
-
-        {/* Detail popup */}
-        <div className="relative px-4 pb-2 min-h-0">
-          <AnimatePresence mode="wait">
-            {selectedEvent && (
-              <EventDetail
-                key={selectedEvent.id}
-                event={selectedEvent}
-                onClose={() => setSelectedEvent(null)}
-              />
-            )}
-          </AnimatePresence>
-          {!selectedEvent && (
-            <p className="text-center text-xs text-slate-600 py-3 italic">
-              Click any event node to learn more · Drag to scroll
-            </p>
-          )}
-        </div>
+      {/* Timeline sections */}
+      <div className="space-y-16">
+        {ERAS.map((era) => (
+          <EraSection key={era.id} eraId={era.id} events={byEra[era.id] ?? []} />
+        ))}
       </div>
 
-      {/* Event count */}
-      <p className="text-xs text-slate-600 text-right">
-        Showing {filteredEvents.length} of {TIMELINE_EVENTS.length} events
-      </p>
+      {filtered.length === 0 && (
+        <div className="text-center py-20 text-slate-600">
+          <p className="font-display text-sm uppercase tracking-widest">No events in this category</p>
+        </div>
+      )}
     </div>
   );
 }
